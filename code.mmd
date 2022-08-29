@@ -1,0 +1,85 @@
+%% graph TD
+flowchart TD
+site((PrecisionDrilling.com))
+
+host(WP Engine)
+waf1(WP Engine)
+waf2(Cloudflare)
+dns(Azure DNS)
+ns_registrar("Network Solutions (GoDaddy)")
+cms(WordPress)
+cms_login(/wp-admin/ OPEN)
+
+site -- Hosted By --> host
+site -- NS Registrar --> ns_registrar
+site -- DNS Provider --> dns
+site -- Protected By WAF1 --> waf1
+site -- Protected By WAF2 --> waf2
+
+
+
+
+
+rx("Recommendations (RX) & Vulnerabilities")
+
+vuln1("XSS Injection on Site Search, unattackable - Low Risk")
+rx1("Nothing IRL, WAF did its job.")
+rx1_why("Could reduce OWASP! ZAP Alerts")
+
+vuln2(WP Login Open - High Risk)
+rx2("Lockdown /wp-admin/ by IP or HTTP User/Pass")
+rx2_why(Prevent most junk login attempts, reduce log clutter)
+
+
+
+site --> rx
+
+vuln1 -- Blocked By Cloudflare --> waf2
+
+rx --> vuln1
+vuln1 -- RX --> rx1
+rx1 -- Why? --> rx1_why
+
+rx --> vuln2
+vuln2 -- RX --> rx2
+rx2 -- Why? --> rx2_why
+
+
+site --> cms
+cms --> cms_login
+cms_login --> vuln2
+
+
+dns_target("CNAME m6blypcji6rh.wpeproxy.com.")
+dns --> dns_target
+dns_target --> host
+
+%% %% %%
+%% cloudflare
+%% %% %%
+cloudflare_why("&quot;WP Engine recommends Cloudflare when configuring DNS because...&quot; ")
+cloudflare_why_src("https://wpengine.com/support/cloudflare-best-practices/")
+
+cloudflare_why --> cloudflare_why_src
+
+waf2 --> cloudflare_why
+
+host --> waf2
+
+
+%% %% %%
+%% Scans Done
+%% %% %%
+
+scans("Scans Performed")
+scan1(OWASP! ZAP)
+scan2(Burp)
+scan3(wpsec.com)
+
+site --> scans
+scans --> scan1
+scans --> scan2
+scans --> scan3
+
+%% ("https://wpsec.com/scan/?id=1eb9f5e51054e231071c4cb745ab1413")
+
